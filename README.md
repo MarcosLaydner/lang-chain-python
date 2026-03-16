@@ -1,5 +1,5 @@
 # lang-chain-python
-learning project for AI integrated workflows
+learning project for AI process chaining and RAG
 
 ## ⚙️ Guia de Configuração
 
