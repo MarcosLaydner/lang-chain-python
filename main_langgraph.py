@@ -1,13 +1,23 @@
+import asyncio
+import os
+
+from dotenv import load_dotenv
+from typing import Literal, TypedDict
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
-from dotenv import load_dotenv
-import os
-from typing import Literal, TypedDict
+from langchain_core.runnables import RunnableConfig
+from langgraph.graph import StateGraph, START, END
 
 
 class Route(TypedDict):
     destino: Literal["praia", "montanha"]
+
+class State(TypedDict):
+    query: str
+    destination: Route
+    response: str
+
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -44,12 +54,37 @@ router_prompt = ChatPromptTemplate.from_messages(
 
 router = router_prompt | model.with_structured_output(Route)
 
-def response(query: str):
-    route = router.invoke({"query": query})["destino"]
-    if route == "praia":
-        return beach_chain.invoke({"query": query})
-    else:
-        return mountain_chain.invoke({"query": query})
+async def router_node(state: State, config=RunnableConfig):
+    return {"destination": await router.ainvoke({"query": state["query"]}, config)}
 
 
-print(response("Quero me aventurar em lugar alto"))
+async def beach_node(state: State, config=RunnableConfig):
+    return {"response": await beach_chain.ainvoke({"query": state["query"]}, config)}
+
+
+async def mountain_node(state: State, config=RunnableConfig):
+    return {"response": await mountain_chain.ainvoke({"query": state["query"]}, config)}
+
+
+async def pick_node(state: State)-> Literal["praia", "montanha"]:
+    return "praia" if state["destination"]["destino"] == "praia" else "montanha"
+
+
+graph = StateGraph(State)
+graph.add_node("router", router_node)
+graph.add_node("praia", beach_node)
+graph.add_node("montanha", mountain_node)
+
+graph.add_edge(START, "router")
+graph.add_conditional_edges("router", pick_node)
+graph.add_edge("praia", END)
+graph.add_edge("montanha", END)
+
+app = graph.compile()
+
+async def main():
+    response = await app.ainvoke({"query": "Quero escalar montanhas no sul do brasil. O que você sugere?"})
+    print(response['response'])
+
+
+asyncio.run(main())
