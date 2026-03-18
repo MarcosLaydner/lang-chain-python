@@ -15,8 +15,8 @@ langchain\Scripts\activate
 
 **Mac/Linux:**
 ```bash
-python3 -m venv langchain
-source langchain/bin/activate
+pyenv 3.10.20 langchain
+source /home/USER/.pyenv/versions/langchain/bin/activate
 ```
 
 ### 2. Instalar Dependências
@@ -32,3 +32,7 @@ Crie ou edite o arquivo `.env` adicionando sua chave de API da OpenAI:
 ```bash
 OPENAI_API_KEY="SUA_CHAVE_DE_API"
 ```
+
+### Models
+
+Use either `gpt-4o-mini` or `gpt-5-nano` for cheapest prices (as of March 2026)
