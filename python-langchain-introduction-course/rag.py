@@ -16,9 +16,9 @@ model = ChatOpenAI(model="gpt-5-nano", temperature=1, api_key=api_key)
 embeddings = OpenAIEmbeddings()
 
 files = [
-    "documents/GTB_gold_Nov23.pdf",
-    "documents/GTB_platinum_Nov23.pdf",
-    "documents/GTB_standard_Nov23.pdf",
+    "shared_documents/GTB_gold_Nov23.pdf",
+    "shared_documents/GTB_platinum_Nov23.pdf",
+    "shared_documents/GTB_standard_Nov23.pdf",
 ]
 
 documents = sum([PyPDFLoader(file).load() for file in files], [])
