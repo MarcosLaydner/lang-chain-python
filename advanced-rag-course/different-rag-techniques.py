@@ -1,3 +1,5 @@
+import json
+
 from dotenv import load_dotenv
 from langchain_community.chat_models import ChatOpenAI
 from langchain_core.output_parsers import CommaSeparatedListOutputParser, StrOutputParser
@@ -10,6 +12,7 @@ from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_classic.retrievers import MultiQueryRetriever
+from langchain_classic.evaluation.qa import QAEvalChain, QAGenerateChain
 
 from transformers import AutoTokenizer
 
@@ -34,7 +37,7 @@ vector_store = FAISS.from_documents(
 retriever = vector_store.as_retriever()
 
 model = OllamaLLM(model="gemma3:4b")
-gpt = ChatOpenAI(model="gpt-4.1-nano")
+gpt = ChatOpenAI(model="gpt-5-nano")
 
 
 prompt = ChatPromptTemplate.from_messages(
@@ -135,6 +138,27 @@ def hyde_rag_chain():
 # print("------------------------------")
 # print("RAG Chain with MultiQuery Retriever:")
 # print(multi_query_rag_chain().invoke(query))
-print("------------------------------")
-print("RAG Chain with HyDE:")
-print(hyde_rag_chain().invoke(query))
+# print("------------------------------")
+# print("RAG Chain with HyDE:")
+# print(hyde_rag_chain().invoke(query))
+
+eval_chain = QAEvalChain.from_llm(gpt)
+
+def evaluate(query_answers, generations):
+    # query_answers: query, answer
+    # generations: result
+    evaluations = eval_chain.evaluate(query_answers, generations)
+    correct_results = 0
+    for i in enumerate(query_answers):
+        correct_results = correct_results + (1 if evaluations[i[0]]["results"].split("\n")[-1].split(":")[-1].strip() == "CORRECT" else 0)
+    return correct_results/len(query_answers)
+        
+
+# qa_chain = QAGenerateChain.from_llm(gpt)
+
+# query_answers = qa_chain.apply_and_parse(
+#     [ {"doc": p.page_content } for p in chunks ]
+# )
+
+with open("test_qa.json", "r") as f:
+    question_answers = json.load(f)
