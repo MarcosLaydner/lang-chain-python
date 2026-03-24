@@ -130,17 +130,19 @@ def hyde_rag_chain():
 
 # Print different outputs to compare the differnt rag approaches
 
-# print("RAG Chain:")
-# print(rag_chain().invoke(query))
-# print("------------------------------")
-# print("RAG Chain with Rewriter:")
-# print(rewriter_rag_chain().invoke(query))
-# print("------------------------------")
-# print("RAG Chain with MultiQuery Retriever:")
-# print(multi_query_rag_chain().invoke(query))
-# print("------------------------------")
-# print("RAG Chain with HyDE:")
-# print(hyde_rag_chain().invoke(query))
+print("RAG Chain:")
+print(rag_chain().invoke(query))
+print("------------------------------")
+print("RAG Chain with Rewriter:")
+print(rewriter_rag_chain().invoke(query))
+print("------------------------------")
+print("RAG Chain with MultiQuery Retriever:")
+print(multi_query_rag_chain().invoke(query))
+print("------------------------------")
+print("RAG Chain with HyDE:")
+print(hyde_rag_chain().invoke(query))
+
+# Evaluation Chain to evaluate the different RAG approaches using a set of question and answers and the generated answers from the different RAG approaches
 
 eval_chain = QAEvalChain.from_llm(gpt)
 
@@ -149,10 +151,10 @@ def evaluate(query_answers, generations):
     # generations: result
     evaluations = eval_chain.evaluate(query_answers, generations)
     correct_results = 0
-    for i in enumerate(query_answers):
-        correct_results = correct_results + (1 if evaluations[i[0]]["results"].split("\n")[-1].split(":")[-1].strip() == "CORRECT" else 0)
+    for i, e in enumerate(query_answers):
+        correct_results = correct_results + (1 if evaluations[i]["results"].split("\n")[-1].split(":")[-1].strip() == "CORRECT" else 0)
     return correct_results/len(query_answers)
-        
+
 
 # qa_chain = QAGenerateChain.from_llm(gpt)
 
@@ -162,3 +164,12 @@ def evaluate(query_answers, generations):
 
 with open("test_qa.json", "r") as f:
     question_answers = json.load(f)
+
+rag_generations = []
+multi_query_rag_generations = []
+no_rag_generations = []
+
+for qa in question_answers[:10]:
+    rag_generations.append({"result": rag_chain.invoke(qa["query"])})
+    multi_query_rag_generations.append({"result": multi_query_rag_chain.invoke(qa["query"])})
+    no_rag_generations.append({"result": gpt.invoke(qa["query"])})
