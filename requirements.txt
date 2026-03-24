@@ -1,10 +1,13 @@
-openai==1.86.0
-langchain==0.3.25
-langchain-openai==0.3.22
-langgraph==0.4.8
-python-dotenv==1.1.0
-faiss-cpu==1.11.0
-langchain-community==0.3.25
-pypdf==5.6.0
-chromadb==1.5.5
-streamlit==1.55.0
+openai
+langchain
+langchain-openai
+langgraph
+python-dotenv
+faiss-cpu
+langchain-community
+pypdf
+chromadb
+streamlit
+transformers
+langchain-ollama
+# "unstructured[pdf]"

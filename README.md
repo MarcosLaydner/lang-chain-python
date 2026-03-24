@@ -15,7 +15,8 @@ langchain\Scripts\activate
 
 **Mac/Linux:**
 ```bash
-pyenv 3.10.20 langchain
+pyenv install 3.10.20
+pyenv virtualenv 3.10.20 langchain
 source /home/USER/.pyenv/versions/langchain/bin/activate
 ```
 
