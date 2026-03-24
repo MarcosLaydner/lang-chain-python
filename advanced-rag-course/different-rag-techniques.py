@@ -173,3 +173,8 @@ for qa in question_answers[:10]:
     rag_generations.append({"result": rag_chain.invoke(qa["query"])})
     multi_query_rag_generations.append({"result": multi_query_rag_chain.invoke(qa["query"])})
     no_rag_generations.append({"result": gpt.invoke(qa["query"])})
+
+
+print("RAG Chain Evaluation:", evaluate(question_answers[:10], rag_generations))
+print("RAG Chain with MultiQuery Retriever Evaluation:", evaluate(question_answers[:10], multi_query_rag_generations))
+print("No RAG Chain Evaluation:", evaluate(question_answers[:10], no_rag_generations))
